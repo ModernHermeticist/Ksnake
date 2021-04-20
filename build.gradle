@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.32'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    compile "com.badlogicgames.gdx:gdx:1.9.10"
+    compile "com.badlogicgames.gdx:gdx-backend-lwjgl:1.9.10"
+    compile "com.badlogicgames.gdx:gdx-platform:1.9.10:natives-desktop"
+    compile "io.github.libktx:ktx-app:1.9.10-b2"
+    compile "io.github.libktx:ktx-graphics:1.9.10-b2"
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
