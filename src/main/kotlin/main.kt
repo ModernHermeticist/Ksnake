@@ -40,6 +40,7 @@ class MyGame : KtxApplicationAdapter {
     var apple = Cell(0,0,0, CellType.APPLE, Color.GREEN)
 
     var delay = 0
+    var dead = false
 
     var lastDirection: MoveDirection = MoveDirection.UP
 
@@ -65,6 +66,7 @@ class MyGame : KtxApplicationAdapter {
     }
 
     private fun logic() {
+        if (dead) return
         delay++
         if (delay < 30) return
         delay = 0
@@ -72,22 +74,33 @@ class MyGame : KtxApplicationAdapter {
             val newSnakePiece = Cell(snake[i-1].x, snake[i-1].y, snake[i-1].size, snake[i-1].type, snake[i-1].color)
             snake[i] = newSnakePiece
         }
-        if (lastDirection == MoveDirection.UP) {
-            snake[0].y += CELL_SIZE
+        when (lastDirection) {
+            MoveDirection.UP -> {
+                snake[0].y += CELL_SIZE
+            }
+            MoveDirection.DOWN -> {
+                snake[0].y -= CELL_SIZE
+            }
+            MoveDirection.LEFT -> {
+                snake[0].x -= CELL_SIZE
+            }
+            MoveDirection.RIGHT -> {
+                snake[0].x += CELL_SIZE
+            }
         }
-        else if (lastDirection == MoveDirection.DOWN) {
-            snake[0].y -= CELL_SIZE
-        }
-        else if (lastDirection == MoveDirection.LEFT) {
-            snake[0].x -= CELL_SIZE
-        }
-        else if (lastDirection == MoveDirection.RIGHT) {
-            snake[0].x += CELL_SIZE
+
+        for (i in 1 until snake.size) {
+            if (isTouchingSelf(snake[0], snake[i]) || isTouchingWall(snake[0])) {
+                dead = true
+                snake.forEach { it.color = Color.PURPLE }
+                return
+            }
         }
 
         if (snake[0].x == apple.x && snake[0].y == apple.y) {
             snake[snake.lastIndex].type = CellType.BODY
             snake.add(Cell(snake[snake.lastIndex].x - CELL_SIZE, snake[snake.lastIndex].y, CELL_SIZE, CellType.TAIL, Color.BLUE))
+            while (snake.any { it.x == apple.x && it.y == apple.y }) apple = placeApple(cellList)
         }
     }
 
@@ -110,6 +123,11 @@ class MyGame : KtxApplicationAdapter {
     }
 
 }
+
+fun isTouchingSelf(head: Cell, other: Cell) = head.x == other.x && head.y == other.y
+
+fun isTouchingWall(head: Cell) = head.x < 0 || head.x == SCREEN_WIDTH || head.y < 0 || head.y > SCREEN_HEIGHT
+
 
 fun generate(): ArrayList<Cell> {
     val ret = ArrayList<Cell>()
